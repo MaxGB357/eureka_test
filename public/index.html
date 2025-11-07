@@ -36,16 +36,63 @@
             color: white;
             padding: 30px;
             text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+
+        .header-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .eureka-avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: white;
+            padding: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .agrosuper-logo {
+            height: 50px;
+            width: auto;
         }
 
         .header h1 {
             font-size: 2.5em;
-            margin-bottom: 10px;
+            margin: 0;
         }
 
         .header p {
             font-size: 1.1em;
             opacity: 0.9;
+            margin: 0;
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                padding: 20px;
+                gap: 20px;
+            }
+
+            .eureka-avatar {
+                width: 80px;
+                height: 80px;
+            }
+
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .agrosuper-logo {
+                height: 40px;
+            }
         }
 
         .controls {
@@ -256,50 +303,178 @@
             color: #10b981;
             font-weight: bold;
         }
+
+        /* Chat Input Styles */
+        .chat-input-section {
+            padding: 20px 30px;
+            background: #f8f9fa;
+            border-top: 2px solid #e9ecef;
+        }
+
+        .input-container {
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+            max-width: 100%;
+        }
+
+        .input-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        #messageInput {
+            width: 100%;
+            padding: 12px 16px;
+            font-size: 1em;
+            font-family: inherit;
+            border: 2px solid #d1d5db;
+            border-radius: 10px;
+            resize: none;
+            min-height: 50px;
+            max-height: 150px;
+            transition: border-color 0.3s ease;
+            line-height: 1.5;
+        }
+
+        #messageInput:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        #messageInput:disabled {
+            background: #e5e7eb;
+            cursor: not-allowed;
+        }
+
+        .char-counter {
+            font-size: 0.85em;
+            color: #6b7280;
+            text-align: right;
+            padding: 0 5px;
+        }
+
+        .char-counter.warning {
+            color: #f59e0b;
+        }
+
+        .char-counter.error {
+            color: #ef4444;
+            font-weight: 600;
+        }
+
+        #sendBtn {
+            padding: 12px 24px;
+            font-size: 1em;
+            background: #667eea;
+            color: white;
+            flex-shrink: 0;
+            align-self: flex-end;
+        }
+
+        #sendBtn:hover:not(:disabled) {
+            background: #5568d3;
+        }
+
+        .message-type-label {
+            font-size: 0.75em;
+            color: #6b7280;
+            margin-left: 4px;
+        }
+
+        .message-timestamp {
+            font-size: 0.75em;
+            color: #9ca3af;
+            display: inline-block;
+            margin-left: 8px;
+        }
+
+        @media (max-width: 768px) {
+            .chat-input-section {
+                padding: 15px;
+            }
+
+            .input-container {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            #sendBtn {
+                width: 100%;
+                align-self: stretch;
+            }
+
+            #messageInput {
+                min-height: 60px;
+            }
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>🎙️ Realtime Voice Agent</h1>
-            <p>Powered by OpenAI Realtime API</p>
+            <img src="eureka-avatar.png" alt="Eureka Avatar" class="eureka-avatar">
+            <div class="header-content">
+                <h1>Asistente Eureka</h1>
+                <img src="agrosuper-logo.png" alt="Agrosuper" class="agrosuper-logo">
+            </div>
         </div>
 
         <div class="features">
-            <h3>Available Features:</h3>
+            <h3>Te ayudo con:</h3>
             <ul>
-                <li>Weather Information</li>
-                <li>Current Time</li>
-                <li>Mathematical Calculations</li>
-                <li>Natural Conversations</li>
+                <li>Postulación de Proyectos 2026</li>
+                <li>Desarrollo de Ideas</li>
+                <li>Validación de Propuestas</li>
+                <li>Soporte Multiidioma</li>
             </ul>
         </div>
 
         <div class="controls">
-            <button id="connectBtn">Connect & Start Talking</button>
-            <button id="disconnectBtn" disabled>Disconnect</button>
+            <button id="connectBtn">Conectar & Empezar a Charlar</button>
+            <button id="disconnectBtn" disabled>Desconectar</button>
         </div>
 
-        <div id="status" class="status info">Ready to connect</div>
+        <div id="status" class="status info">Lista para conectar</div>
 
         <div class="content">
             <div class="panel">
-                <h2>Conversation</h2>
+                <h2>Conversación</h2>
                 <div id="transcript">
                     <div class="empty-state">
-                        Start talking to see the conversation here...
+                        Empezá a hablar o escribir para ver la conversación acá...
                     </div>
                 </div>
             </div>
 
             <div class="panel">
-                <h2>Event Log</h2>
+                <h2>Registro de Eventos</h2>
                 <div id="events"></div>
             </div>
         </div>
 
+        <div class="chat-input-section">
+            <div class="input-container">
+                <div class="input-wrapper">
+                    <textarea
+                        id="messageInput"
+                        placeholder="Escribí un mensaje..."
+                        rows="2"
+                        maxlength="1000"
+                        disabled
+                    ></textarea>
+                    <div class="char-counter">
+                        <span id="charCount">0</span> / 1000
+                    </div>
+                </div>
+                <button id="sendBtn" disabled>Enviar</button>
+            </div>
+        </div>
+
         <div class="footer">
-            <p>Make sure your microphone is enabled. The agent will automatically respond to your voice.</p>
+            <p>Asegurate de tener el micrófono habilitado. Podés hablar o escribir para interactuar con la asistente.</p>
         </div>
     </div>
 

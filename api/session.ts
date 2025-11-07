@@ -1,38 +1,37 @@
-import express from 'express';
-import cors from 'cors';
-import { config } from 'dotenv';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import { VercelRequest, VercelResponse } from '@vercel/node';
 
-// Load environment variables
-config();
+export default async function handler(req: VercelRequest, res: VercelResponse) {
+  // Enable CORS
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
+  res.setHeader(
+    'Access-Control-Allow-Headers',
+    'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version'
+  );
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+  // Handle OPTIONS request for CORS preflight
+  if (req.method === 'OPTIONS') {
+    res.status(200).end();
+    return;
+  }
 
-const app = express();
-const PORT = process.env.PORT || 3000;
+  // Only allow POST requests
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
 
-// Middleware
-app.use(cors());
-app.use(express.json());
-app.use(express.static(path.join(__dirname, '../public')));
-
-// Endpoint to generate ephemeral API key for client
-app.post('/api/session', async (req, res) => {
   try {
     const apiKey = process.env.OPENAI_API_KEY;
 
     if (!apiKey) {
       return res.status(500).json({
-        error: 'OpenAI API key not configured. Please set OPENAI_API_KEY in .env file'
+        error: 'OpenAI API key not configured. Please set OPENAI_API_KEY in Vercel environment variables'
       });
     }
 
     console.log('[Backend] Requesting ephemeral key from OpenAI...');
 
-    // Note: input_audio_transcription cannot be set here - it's configured automatically
-    // by OpenAI or needs to be set via the WebSocket connection after session starts
     const sessionConfig = {
       session: {
         type: 'realtime',
@@ -72,19 +71,9 @@ app.post('/api/session', async (req, res) => {
     console.log('[Backend] Ephemeral key received:', data.value ? `${data.value.substring(0, 10)}...` : 'NO VALUE');
 
     // Return the complete response which contains the 'value' field with the ephemeral key
-    res.json(data);
+    res.status(200).json(data);
   } catch (error) {
     console.error('[Backend] Error creating session:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
-});
-
-// Health check endpoint
-app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', message: 'Server is running' });
-});
-
-app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
-  console.log(`Open http://localhost:${PORT} in your browser to use the voice agent`);
-});
+}
