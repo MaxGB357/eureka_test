@@ -14,7 +14,6 @@ build
 *.tsbuildinfo
 
 # Development files
-src/server.ts
 src/
 
 # IDE and OS files
@@ -31,6 +30,7 @@ src/
 # Documentation
 README.md
 CONFIGURATION.md
+DEPLOYMENT.md
 
 # Local development
 *.log
