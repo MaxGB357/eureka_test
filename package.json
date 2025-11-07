@@ -3,7 +3,13 @@
   "version": "1.0.0",
   "description": "Eureka - Asistente de Innovación Agrosuper using OpenAI Realtime API",
   "type": "module",
-  "scripts": {},
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "start": "tsx src/server.ts",
+    "build": "tsc",
+    "type-check": "tsc --noEmit",
+    "vercel-build": "echo 'Build complete'"
+  },
   "dependencies": {
     "@openai/agents": "^0.1.0",
     "@openai/agents-realtime": "^0.1.0",
