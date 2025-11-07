@@ -1,6 +1,3 @@
 {
-  "buildCommand": null,
-  "devCommand": null,
-  "installCommand": "npm install",
-  "outputDirectory": "."
+  "version": 2
 }
