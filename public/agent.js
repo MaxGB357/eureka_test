@@ -328,8 +328,7 @@ async function connect() {
     session = new RealtimeSession(agent, {
       model: 'gpt-realtime',
     });
-    // 'gpt-4o-realtime-preview-2024-12-17' - PREVIO
-    
+
     // Set up event listeners BEFORE connecting
     console.log('[Frontend] Setting up event listeners...');
 

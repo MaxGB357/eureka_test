@@ -35,7 +35,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const sessionConfig = {
       session: {
         type: 'realtime',
-        model: 'gpt-4o-realtime-preview-2024-12-17'
+        model: 'gpt-realtime'
       }
     };
 
