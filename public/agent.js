@@ -205,8 +205,9 @@ const messageInput = document.getElementById('messageInput');
 const sendBtn = document.getElementById('sendBtn');
 const charCount = document.getElementById('charCount');
 
-// Global deduplication tracking for all messages
+// Global deduplication tracking for all messages and events
 const processedMessages = new Set();
+const processedEvents = new Set();
 
 // Helper function to format timestamp
 function formatTimestamp() {
@@ -272,8 +273,32 @@ function addTranscript(role, text, messageType = 'voice', itemId = null) {
   transcriptDiv.scrollTop = transcriptDiv.scrollHeight;
 }
 
-// Add event log
+// Add event log with deduplication
 function logEvent(event) {
+  // Skip empty events
+  if (!event || !event.trim()) {
+    return;
+  }
+
+  // Create a unique key for this event (without timestamp for deduplication)
+  // Use a time window of 1 second to prevent rapid duplicates
+  const now = Date.now();
+  const eventKey = `${event}-${Math.floor(now / 1000)}`;
+
+  // Check if this event was already logged recently
+  if (processedEvents.has(eventKey)) {
+    console.log('[Frontend] Skipping duplicate event:', event.substring(0, 30) + '...');
+    return;
+  }
+
+  // Mark this event as processed
+  processedEvents.add(eventKey);
+
+  // Clean up old events after 5 seconds to prevent memory leak
+  setTimeout(() => {
+    processedEvents.delete(eventKey);
+  }, 5000);
+
   const eventDiv = document.createElement('div');
   eventDiv.className = 'event';
   eventDiv.textContent = `[${new Date().toLocaleTimeString()}] ${event}`;
@@ -501,6 +526,15 @@ async function disconnect() {
     console.log('[Frontend] Disconnecting session...');
 
     try {
+      // Remove all event listeners to prevent duplicates on reconnect
+      session.off('agent_end');
+      session.off('agent_start');
+      session.off('audio_stopped');
+      session.off('history_added');
+      session.off('history_updated');
+      session.off('transport_event');
+      session.off('error');
+
       // Use the close() method to disconnect
       await session.close();
       console.log('[Frontend] Session closed successfully');
@@ -510,6 +544,9 @@ async function disconnect() {
 
     session = null;
     isConnected = false;
+
+    // Clear event deduplication cache on disconnect
+    processedEvents.clear();
 
     // Reset UI
     updateStatus('Desconectada', 'info');
@@ -537,9 +574,9 @@ async function sendTextMessage() {
 
     console.log('[Frontend] Sending text message:', message);
 
-    // Add user message to transcript immediately
+    // Add user message to transcript immediately (deduplication will prevent duplicates)
     addTranscript('Tú', message, 'text');
-    logEvent(`Tú escribiste: ${message.substring(0, 50)}${message.length > 50 ? '...' : ''}`);
+    // Note: logEvent will be triggered by history_added listener to avoid duplicates
 
     // Send message through Realtime API
     await session.sendMessage(message);
