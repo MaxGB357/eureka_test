@@ -434,9 +434,50 @@ OPENAI_API_KEY=sk-proj-...your-key-here...
 
 # Server Configuration
 PORT=3000
+
+# n8n Webhook Integration (for project submission)
+N8N_WEBHOOK_URL=https://your-n8n-instance.app/webhook/submit-project
+N8N_WEBHOOK_SECRET=your-webhook-secret-here
 ```
 
-**Security Note**: Never commit your `.env` file or expose your API key in frontend code. The ephemeral key system ensures the main API key stays secure on the backend.
+### Environment Variable Descriptions
+
+| Variable | Required | Description | Example |
+|----------|----------|-------------|---------|
+| `OPENAI_API_KEY` | **Yes** | OpenAI API key for Realtime API access | `sk-proj-abc123...` |
+| `PORT` | No | Local development server port | `3000` (default) |
+| `N8N_WEBHOOK_URL` | **Yes*** | n8n webhook endpoint URL for project submission | `https://n8n.app/webhook/submit-project` |
+| `N8N_WEBHOOK_SECRET` | **Yes*** | Secret token for webhook authentication | `my-secure-secret-123` |
+
+\* Required only if using the project submission feature (submitProjectTool)
+
+### Vercel Environment Variables
+
+When deploying to Vercel, configure these variables in the Vercel Dashboard:
+
+1. Go to **Project Settings** → **Environment Variables**
+2. Add each variable:
+   - `OPENAI_API_KEY` - Production, Preview, Development
+   - `N8N_WEBHOOK_URL` - Production, Preview, Development
+   - `N8N_WEBHOOK_SECRET` - Production, Preview, Development
+3. Click **Save**
+4. **Redeploy** the project (required for env vars to take effect)
+
+### n8n Webhook Configuration
+
+The `submitProjectTool` uses these environment variables to:
+
+1. **Send project data to n8n**: POST request to `N8N_WEBHOOK_URL`
+2. **Authenticate the webhook**: Sends `N8N_WEBHOOK_SECRET` in the `X-Webhook-Secret` header
+3. **Save to Google Sheets**: n8n workflow saves the project data
+4. **Send confirmation email**: n8n workflow sends email to the user
+
+**Development vs Production**:
+
+- **Development** (localhost): Uses `http://localhost:8080/webhook/submit-project` or env var if set
+- **Production** (Vercel): Uses `process.env.N8N_WEBHOOK_URL`
+
+**Security Note**: Never commit your `.env` file or expose your API keys in frontend code. The ephemeral key system ensures the main API key stays secure on the backend. The webhook secret should be a strong, random string.
 
 ---
 
