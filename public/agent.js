@@ -70,9 +70,9 @@ const submitProjectTool = tool({
     problema: z.string().describe('Problema u oportunidad identificada'),
     solucion: z.string().describe('Solución propuesta'),
     impacto: z.string().describe('Impacto esperado con datos numéricos'),
-    gerencias: z.array(z.string()).optional().describe('Gerencias impactadas'),
-    kpis: z.array(z.string()).optional().describe('KPIs afectados'),
-    marca: z.string().optional().describe('Marca asociada si aplica'),
+    gerencias: z.array(z.string()).nullable().describe('Gerencias impactadas (puede ser null)'),
+    kpis: z.array(z.string()).nullable().describe('KPIs afectados (puede ser null)'),
+    marca: z.string().nullable().describe('Marca asociada si aplica (puede ser null)'),
   }),
   execute: async (projectData) => {
     try {
