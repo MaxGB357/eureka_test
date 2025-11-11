@@ -13,9 +13,9 @@ dist
 build
 *.tsbuildinfo
 
-# Development files
-src/server.ts
+# Development files (exclude all src/ to prevent entrypoint detection)
 src/
+tsconfig.json
 
 # IDE and OS files
 .vscode
