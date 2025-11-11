@@ -1,12 +1,5 @@
 {
-  "rewrites": [
-    {
-      "source": "/",
-      "destination": "/public/index.html"
-    },
-    {
-      "source": "/:path((?!api).*)",
-      "destination": "/public/:path"
-    }
-  ]
+  "framework": null,
+  "outputDirectory": "public",
+  "installCommand": "npm install"
 }
