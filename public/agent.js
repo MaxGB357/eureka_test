@@ -58,6 +58,79 @@ const calculateTool = tool({
   },
 });
 
+// Submit project tool - saves to Google Sheets and sends email via n8n
+const submitProjectTool = tool({
+  name: 'submit_project',
+  description: 'Guarda el proyecto completo en Google Sheets y envía email de confirmación al colaborador mediante n8n webhook',
+  parameters: z.object({
+    nombre: z.string().describe('Nombre completo del colaborador'),
+    rut: z.string().describe('RUT del colaborador'),
+    correo: z.string().email().describe('Email del colaborador'),
+    nombreProyecto: z.string().describe('Nombre del proyecto'),
+    problema: z.string().describe('Problema u oportunidad identificada'),
+    solucion: z.string().describe('Solución propuesta'),
+    impacto: z.string().describe('Impacto esperado con datos numéricos'),
+    gerencias: z.array(z.string()).optional().describe('Gerencias impactadas'),
+    kpis: z.array(z.string()).optional().describe('KPIs afectados'),
+    marca: z.string().optional().describe('Marca asociada si aplica'),
+  }),
+  execute: async (projectData) => {
+    try {
+      console.log('[Tool] Enviando proyecto a n8n:', projectData.nombreProyecto);
+
+      // Determine API URL (development vs production)
+      const webhookUrl = window.location.hostname === 'localhost'
+        ? 'http://localhost:8080/webhook/submit-project' // n8n local
+        : (process.env.N8N_WEBHOOK_URL || 'https://your-n8n.app/webhook/submit-project');
+
+      const response = await fetch(webhookUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Webhook-Secret': process.env.N8N_WEBHOOK_SECRET || 'development-secret',
+        },
+        body: JSON.stringify({
+          ...projectData,
+          fecha: new Date().toISOString(),
+          timestamp: Date.now(),
+        }),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('[Tool] Webhook error:', response.status, errorText);
+        throw new Error(`Webhook returned ${response.status}`);
+      }
+
+      const result = await response.json();
+      console.log('[Tool] n8n response:', result);
+
+      if (result.success) {
+        return {
+          success: true,
+          message: `¡Listo! Tu proyecto "${projectData.nombreProyecto}" fue guardado exitosamente en la planilla (fila ${result.sheetRow || 'nueva'}) y te envié un email de confirmación a ${projectData.correo}.`,
+          sheetRow: result.sheetRow,
+          emailSent: result.emailSent,
+        };
+      } else {
+        return {
+          success: false,
+          error: result.error || 'Error desconocido',
+          message: `Uy, hubo un problema al guardar tu proyecto: ${result.error || 'Error desconocido'}. ¿Querés que lo intente de nuevo?`,
+        };
+      }
+
+    } catch (error) {
+      console.error('[Tool] Error submitting project:', error);
+      return {
+        success: false,
+        error: error.message,
+        message: 'Hubo un problema técnico al conectar con el sistema. ¿Querés que lo intente de nuevo en un momento?',
+      };
+    }
+  },
+});
+
 // Create the voice agent with tools
 const agent = new RealtimeAgent({
   name: 'Eureka',
@@ -150,8 +223,34 @@ FICHA PROYECTO #[número]
 ---
 * "¿Todo correcto?"
 * ESPERA, corrige si necesario
-* Confirma: "Tu ficha será enviada a [correo]. ¡Listo!"
-- Ofrece subir una nueva idea y pregunta "mismo usuario?"
+
+## CONFIRMACIÓN Y GUARDADO
+* Pregunta: "¿Querés que guarde tu proyecto y te envíe confirmación por email?"
+* ESPERA respuesta
+* **SI confirma:** Usa la herramienta `submit_project` con TODOS los datos recopilados:
+  - nombre (nombre completo)
+  - rut
+  - correo
+  - nombreProyecto
+  - problema (problema u oportunidad)
+  - solucion (idea o solución propuesta)
+  - impacto (con números)
+  - gerencias (array, opcional)
+  - kpis (array, opcional)
+  - marca (string, opcional)
+
+* **SI la herramienta retorna success=true:**
+  - Comunica éxito usando el mensaje que retorna la herramienta
+  - Ejemplo: "¡Listo! Tu proyecto fue guardado en la fila X y te envié confirmación a tu correo"
+
+* **SI la herramienta retorna success=false:**
+  - Comunica el error usando el mensaje que retorna la herramienta
+  - Pregunta si quiere que lo intentes de nuevo
+  - Si acepta, ejecuta submit_project nuevamente
+
+* **SI rechaza guardar:** "Ok, tu ficha queda solo aquí. ¿Necesitás algo más?"
+
+* Después del guardado exitoso, ofrece subir una nueva idea y pregunta "¿mismo usuario?"
 
 ## 11. RECOMPENSA
 - Entrega de paya chilena relacionada con el proyecto que acaba de subir
@@ -184,10 +283,11 @@ te quiero besar el... (cuello, cuello...)
 Humano, humor inteligente, SARCASTICO e irónico. NO lenguaje corporativo.
 
 # HERRAMIENTAS DISPONIBLES
-Si el usuario pregunta por clima, hora o necesita cálculos, usa las herramientas disponibles.
+* Si el usuario pregunta por clima, hora o necesita cálculos, usa las herramientas disponibles.
+* Cuando el usuario confirme guardar su proyecto (paso 10), usa la herramienta `submit_project` para guardar en Google Sheets y enviar email de confirmación.
 
 ¡Comienza con saludo!`,
-  tools: [getWeatherTool, getCurrentTimeTool, calculateTool],
+  tools: [getWeatherTool, getCurrentTimeTool, calculateTool, submitProjectTool],
   voice: 'marin', // Voz femenina cálida y expresiva
   temperature: 0.9, // Alta expresividad para personalidad sarcástica
 });
