@@ -61,7 +61,7 @@ The backend generates ephemeral keys with specific session parameters. Configure
 const sessionConfig = {
   session: {
     type: 'realtime',
-    model: 'gpt-4o-realtime-preview-2024-12-17'
+    model: 'gpt-realtime'
   }
 };
 ```
@@ -222,17 +222,16 @@ Currently supported Realtime API models:
 
 | Model ID | Description | Use Case |
 |----------|-------------|----------|
-| `gpt-4o-realtime-preview-2024-12-17` | Latest GPT-4o realtime model | Production use, best quality |
-| `gpt-realtime` | Generic realtime model alias | May point to latest version |
+| `gpt-realtime` | OpenAI Realtime model | Production use, automatically updated to latest version |
 
 ### How to Change Model:
 
 **Option 1: Backend Configuration (Recommended)**
 
-Edit `src/server.ts` line 44:
+Edit `src/server.ts` line 39:
 
 ```typescript
-model: 'gpt-4o-realtime-preview-2024-12-17',
+model: 'gpt-realtime',
 ```
 
 Then rebuild and restart the server.
@@ -243,7 +242,7 @@ You can also specify the model when creating the session in `agent.js`:
 
 ```javascript
 const session = new RealtimeSession(agent, {
-  model: 'gpt-4o-realtime-preview-2024-12-17',
+  model: 'gpt-realtime',
 });
 ```
 
@@ -499,9 +498,9 @@ voice: 'ash',  // alloy, echo, shimmer, verse, ash
 ```
 
 ### Change Model
-Location: `src/server.ts:44`
+Location: `src/server.ts:39`
 ```typescript
-model: 'gpt-4o-realtime-preview-2024-12-17',
+model: 'gpt-realtime',
 ```
 
 ### Change Temperature

@@ -1345,9 +1345,7 @@ OPENAI_API_KEY = sk-proj-...
 model: 'gpt-realtime'
 ```
 
-**Alternativas**:
-- `gpt-4o-realtime-preview-2024-12-17` (específico)
-- `gpt-realtime` (alias a la última versión)
+Este es el modelo estándar de OpenAI Realtime API que se actualiza automáticamente a la última versión.
 
 #### Voz
 
