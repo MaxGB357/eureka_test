@@ -6,7 +6,7 @@ import { z } from 'https://cdn.jsdelivr.net/npm/zod@3.23.8/+esm';
 // ============================================================================
 const CONFIG = {
   // n8n webhook URL - Replace with your actual n8n webhook URL
-  N8N_WEBHOOK_URL: 'https://your-n8n-instance.app.n8n.cloud/webhook/submit-project',
+  N8N_WEBHOOK_URL: 'https://devmaxg.app.n8n.cloud/webhook-test/3a0b7644-4319-4fc8-b031-bbe47dadfea1',
 
   // Webhook authentication secret - Replace with your actual secret
   N8N_WEBHOOK_SECRET: 'your-webhook-secret-here',
