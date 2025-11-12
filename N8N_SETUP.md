@@ -410,9 +410,72 @@ IF
 
 ---
 
-## Paso 5: Configurar Variables de Entorno
+## Paso 5: Configurar el Webhook en el Frontend
 
-### 5.1 En tu `.env` Local
+### 5.1 Editar la Configuración en `agent.js`
+
+El frontend necesita conocer la URL y el secret de tu webhook de n8n. Como el navegador no tiene acceso a variables de entorno, configuraremos esto directamente en el código.
+
+**Paso a paso:**
+
+1. **Abre el archivo**: `public/agent.js`
+
+2. **Busca la sección CONFIG** (líneas 4-17):
+
+```javascript
+// ============================================================================
+// CONFIGURATION - Edit these values for your n8n webhook
+// ============================================================================
+const CONFIG = {
+  // n8n webhook URL - Replace with your actual n8n webhook URL
+  N8N_WEBHOOK_URL: 'https://your-n8n-instance.app.n8n.cloud/webhook/submit-project',
+
+  // Webhook authentication secret - Replace with your actual secret
+  N8N_WEBHOOK_SECRET: 'your-webhook-secret-here',
+
+  // For local n8n testing, uncomment and update:
+  // N8N_WEBHOOK_URL: 'http://localhost:5678/webhook/submit-project',
+};
+// ============================================================================
+```
+
+3. **Reemplaza los valores**:
+
+   - `N8N_WEBHOOK_URL`: Pega la URL que copiaste del nodo Webhook en n8n (Paso 4.2, Nodo 1)
+   - `N8N_WEBHOOK_SECRET`: Pega el secret que configuraste en el nodo Webhook
+
+**Ejemplo configurado:**
+
+```javascript
+const CONFIG = {
+  N8N_WEBHOOK_URL: 'https://mi-instancia.app.n8n.cloud/webhook/submit-project',
+  N8N_WEBHOOK_SECRET: 'eureka-webhook-2026-ABC123',
+};
+```
+
+4. **Guarda el archivo**
+
+5. **Commit y push los cambios** (si estás usando Git):
+
+```bash
+git add public/agent.js
+git commit -m "Configure n8n webhook URL and secret"
+git push
+```
+
+**⚠️ NOTA DE SEGURIDAD**:
+
+En un entorno de producción real, NO deberías exponer el webhook secret en el código frontend. La mejor práctica es:
+
+- Crear un endpoint backend intermedio que valide requests
+- Ese backend llama a n8n con el secret
+- El frontend solo llama a tu backend
+
+Pero para testing y prototipado rápido, esta configuración directa funciona bien.
+
+### 5.2 Variables de Entorno para el Backend (`.env`)
+
+El backend (para el token de OpenAI) sigue usando variables de entorno:
 
 Crea o edita el archivo `.env` en la raíz del proyecto:
 
@@ -422,38 +485,31 @@ OPENAI_API_KEY=sk-proj-...
 
 # Server Configuration
 PORT=3000
-
-# n8n Webhook Integration
-N8N_WEBHOOK_URL=https://your-instance.app.n8n.cloud/webhook/submit-project
-N8N_WEBHOOK_SECRET=eureka-webhook-2026-ABC123
 ```
 
 **⚠️ IMPORTANTE**:
-- Reemplaza `N8N_WEBHOOK_URL` con la URL que copiaste del nodo Webhook
-- Reemplaza `N8N_WEBHOOK_SECRET` con el secret que configuraste en el nodo Webhook
 - **NUNCA** comitees el archivo `.env` a Git (ya está en `.gitignore`)
 
-### 5.2 En Vercel (Producción)
+### 5.3 En Vercel (Producción)
+
+Para Vercel, solo necesitas configurar la variable del backend:
 
 1. Ve a [Vercel Dashboard](https://vercel.com/)
 2. Selecciona tu proyecto
 3. Ve a **Settings** → **Environment Variables**
-4. Agrega cada variable:
+4. Agrega:
 
-   **Variable 1:**
-   - **Name**: `N8N_WEBHOOK_URL`
-   - **Value**: `https://your-instance.app.n8n.cloud/webhook/submit-project`
-   - **Environments**: ✅ Production, ✅ Preview, ✅ Development
-
-   **Variable 2:**
-   - **Name**: `N8N_WEBHOOK_SECRET`
-   - **Value**: `eureka-webhook-2026-ABC123`
+   **Variable:**
+   - **Name**: `OPENAI_API_KEY`
+   - **Value**: `sk-proj-...` (tu API key de OpenAI)
    - **Environments**: ✅ Production, ✅ Preview, ✅ Development
 
 5. Click **"Save"**
-6. **Redeploy** el proyecto:
-   - Ve a **Deployments**
-   - Click en el último deployment → **⋯** → **"Redeploy"**
+6. **Redeploy** el proyecto
+
+**Para actualizar el webhook en producción:**
+
+Simplemente edita `public/agent.js` con el CONFIG correcto y haz push. Vercel redeployará automáticamente con la nueva configuración.
 
 ---
 
