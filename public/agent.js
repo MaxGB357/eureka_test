@@ -1,6 +1,21 @@
 import { RealtimeAgent, RealtimeSession, tool } from 'https://cdn.jsdelivr.net/npm/@openai/agents-realtime@0.1.0/+esm';
 import { z } from 'https://cdn.jsdelivr.net/npm/zod@3.23.8/+esm';
 
+// ============================================================================
+// CONFIGURATION - Edit these values for your n8n webhook
+// ============================================================================
+const CONFIG = {
+  // n8n webhook URL - Replace with your actual n8n webhook URL
+  N8N_WEBHOOK_URL: 'https://your-n8n-instance.app.n8n.cloud/webhook/submit-project',
+
+  // Webhook authentication secret - Replace with your actual secret
+  N8N_WEBHOOK_SECRET: 'your-webhook-secret-here',
+
+  // For local n8n testing, uncomment and update:
+  // N8N_WEBHOOK_URL: 'http://localhost:5678/webhook/submit-project',
+};
+// ============================================================================
+
 // Define some example tools for the agent
 const getWeatherTool = tool({
   name: 'get_weather',
@@ -77,17 +92,13 @@ const submitProjectTool = tool({
   execute: async (projectData) => {
     try {
       console.log('[Tool] Enviando proyecto a n8n:', projectData.nombreProyecto);
+      console.log('[Tool] Webhook URL:', CONFIG.N8N_WEBHOOK_URL);
 
-      // Determine API URL (development vs production)
-      const webhookUrl = window.location.hostname === 'localhost'
-        ? 'http://localhost:8080/webhook/submit-project' // n8n local
-        : (process.env.N8N_WEBHOOK_URL || 'https://your-n8n.app/webhook/submit-project');
-
-      const response = await fetch(webhookUrl, {
+      const response = await fetch(CONFIG.N8N_WEBHOOK_URL, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-Webhook-Secret': process.env.N8N_WEBHOOK_SECRET || 'development-secret',
+          'X-Webhook-Secret': CONFIG.N8N_WEBHOOK_SECRET,
         },
         body: JSON.stringify({
           ...projectData,
