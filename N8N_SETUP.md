@@ -573,7 +573,7 @@ curl -X POST https://your-instance.app.n8n.cloud/webhook/submit-project \
    - Sigue el flujo completo de postulación de un proyecto
 
 4. **Llega a la confirmación**:
-   - Eureka preguntará: "¿Querés que guarde tu proyecto y te envíe confirmación por email?"
+   - Eureka preguntará: "¿Quieres que guarde tu proyecto y te envíe confirmación por email?"
    - Responde: "Sí" o "Si, por favor"
 
 5. **Verifica el resultado**:

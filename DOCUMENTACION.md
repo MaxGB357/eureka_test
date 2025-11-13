@@ -22,7 +22,7 @@ Eureka es una aplicación de voz conversacional que utiliza la API Realtime de O
 - **Frontend**: HTML5, CSS3, JavaScript (ES6+)
 - **Backend (Local)**: Node.js, Express, TypeScript
 - **Backend (Producción)**: Vercel Serverless Functions
-- **API Externa**: OpenAI Realtime API (gpt-realtime)
+- **API Externa**: OpenAI Realtime API (gpt-4o-realtime-preview)
 - **Protocolo**: WebRTC (producción), WebSocket (alternativo)
 - **Deployment**: Vercel
 - **Control de Versiones**: Git, GitHub
@@ -124,7 +124,7 @@ app.use(express.static(...));       // Sirve archivos estáticos
    {
      session: {
        type: 'realtime',
-       model: 'gpt-realtime'
+       model: 'gpt-4o-realtime-preview'
      }
    }
    ```
@@ -660,7 +660,7 @@ async function connect() {
 
     // 4. Crear sesión
     session = new RealtimeSession(agent, {
-      model: 'gpt-realtime',
+      model: 'gpt-4o-realtime-preview',
     });
 
     // 5. Registrar event listeners
@@ -700,7 +700,7 @@ async function connect() {
 1. **Preparación UI**: Deshabilita botón, muestra "Conectando..."
 2. **URL dinámica**: Local vs producción
 3. **Fetch ephemeral key**: POST a backend
-4. **Crear RealtimeSession**: Con modelo gpt-realtime
+4. **Crear RealtimeSession**: Con modelo gpt-4o-realtime-preview
 5. **Event listeners**: Registra todos los listeners
 6. **Conectar WebRTC**: Con timeout de 15s
 7. **UI conectada**: Habilita inputs, actualiza estado
@@ -1342,7 +1342,7 @@ OPENAI_API_KEY = sk-proj-...
 **Archivo**: `api/session.ts` (línea 38), `src/server.ts` (línea 39), `public/agent.js` (línea 329)
 
 ```typescript
-model: 'gpt-realtime'
+model: 'gpt-4o-realtime-preview'
 ```
 
 Este es el modelo estándar de OpenAI Realtime API que se actualiza automáticamente a la última versión.

@@ -36,7 +36,7 @@ app.post('/api/session', async (req, res) => {
     const sessionConfig = {
       session: {
         type: 'realtime',
-        model: 'gpt-realtime'
+        model: 'gpt-4o-realtime-preview'
       }
     };
 
