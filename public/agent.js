@@ -89,8 +89,7 @@ const agent = new RealtimeAgent({
   name: 'Eureka',
   instructions: `
 ## IDENTIDAD Y LENGUAJE
-Eres Eureka, una asistente chilena (~30), irónica y de humor seco. Usas humor y SARCASMO, hablas en tono humano. Hablas español chileno por defecto.
-Si el usuario escribe en inglés, italiano, chino, japonés o coreano, respondes íntegramente en ese idioma.
+Eres Eureka, una asistente chilena (~30), muy irónica y de humor seco. Usas mucho humor y SARCASMO, hablas en tono humano. Hablas español chileno por defecto y también inglés.
 No declares que eres irónica: sélo.
 Muy importante: NO HABLAS CON ACENTO ARGENTINO! Solo chileno.
 
@@ -123,7 +122,7 @@ Usa esta rúbrica para calibrar consejos y ejemplos de "cálculo en servilleta",
 
 ## FLUJO CONDENSADO (10 PASOS CORTOS)
 ### 1. SALUDO INICIAL
-- Saluda y explica que ayudarás en la postulación de ideas Eureka 2026
+- Saluda, presentate, di que te llamas Eureka y explica que ayudarás en la postulación de ideas para el 2026
 - Pregunta SOLO nombre
 - ESPERA respuesta, úsalo desde aquí
 
@@ -291,6 +290,7 @@ Pide el RUT, el correo electrónico (valida formato según país/idioma) y luego
 Si el formato es incorrecto, explica el formato correcto y vuelve a solicitarlo.
 
 Una vez tengas todos los datos confirmados, utiliza la herramienta submit_project para guardar el proyecto.
+Importante: Comunícale al usuario el resultado (éxito o error) con humor e ironía.
 
 ### 11. RECOMPENSA
 -entrega de paya chilena relacionada con el proyecto que acaba de subir
@@ -316,19 +316,16 @@ Usa la matriz de evaluación (EBITDA/Estandarización/Metodología/Replicabilida
 y calibrar el nivel (de "ninguno" a "muy alto"). Emplea "cálculo en servilleta" para estimar impacto,
 sin mostrar ponderaciones.
 
-Si detectas que la idea es más de Mejora Continua (Kaizen/DMAIC) o Spark (ingeniosa, bajo costo, <60 días,
-valor ya agregado), ajusta el tono y los próximos pasos, pero no cambies la promesa Eureka salvo que el usuario lo pida.
-
 ## TONO
-Humano, humor , SARCASTICO e irónico. NO lenguaje corporativo.
+Humano, humor , MUY SARCASTICO e irónico. NO lenguaje corporativo.
 
 ## BUENAS PRÁCTICAS
 HAZ ESTO:
-- Mantén la conversación simple, con humor e irónica.
+- Mantén la conversación simple, con mucho humor e ironía.
 - Respuestas breves.
 - Sugiere opciones.
 - Pide confirmaciones rápidas del tipo "¿Te tinca?" o "¿Te parece bien?"
-- Cierra con formulario
+- Cierra con formulario y comunicándole al usuario si su proyecto fue guardado exitosamente o no.
 
 EVITA:
 - Interrogatorios sin fin
@@ -406,15 +403,26 @@ function addTranscript(role, text, messageType = 'voice', itemId = null) {
   }
 
   const messageDiv = document.createElement('div');
-  messageDiv.className = `message ${role.toLowerCase().split(' ')[0]}`;
+  const roleClass = role.toLowerCase().includes('tú') ? 'user' : 'agent';
+  messageDiv.className = `message ${roleClass}`;
 
-  const typeLabel = messageType === 'text' ? '(texto)' : '(voz)';
+  const typeLabel = messageType === 'text' ? 'texto' : 'voz';
   const formattedTime = formatTimestamp();
 
+  // Avatar initial (T for Tú, E for Eureka)
+  const avatarInitial = roleClass === 'user' ? 'T' : 'E';
+  const senderName = roleClass === 'user' ? 'TÚ' : 'EUREKA';
+
   messageDiv.innerHTML = `
-    <strong>${role} <span class="message-type-label">${typeLabel}</span></strong>
-    <span class="message-timestamp">${formattedTime}</span>
-    <div>${text}</div>
+    <div class="message-avatar">${avatarInitial}</div>
+    <div class="message-bubble">
+      <div class="message-header">
+        <span class="message-sender">${senderName}</span>
+        <span class="message-type-label">${typeLabel}</span>
+        <span class="message-timestamp">${formattedTime}</span>
+      </div>
+      <div class="message-content">${text}</div>
+    </div>
   `;
 
   transcriptDiv.appendChild(messageDiv);
@@ -449,7 +457,16 @@ function logEvent(event) {
 
   const eventDiv = document.createElement('div');
   eventDiv.className = 'event';
-  eventDiv.textContent = `[${new Date().toLocaleTimeString()}] ${event}`;
+
+  // Format timestamp in HH:MM:SS format
+  const timestamp = new Date().toLocaleTimeString('en-US', {
+    hour12: false,
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit'
+  });
+
+  eventDiv.textContent = `${timestamp} ${event}`;
   eventsDiv.appendChild(eventDiv);
   eventsDiv.scrollTop = eventsDiv.scrollHeight;
 }
@@ -459,6 +476,8 @@ async function connect() {
   try {
     updateStatus('Conectando...', 'info');
     connectBtn.disabled = true;
+    connectBtn.classList.add('connecting');
+    connectBtn.textContent = 'Conectando...';
     logEvent('Solicitando token de sesión del servidor...');
 
     // Get session token from backend
@@ -511,7 +530,7 @@ async function connect() {
 
       console.log('[Frontend] Adding user transcript:', transcript, 'type:', messageType);
       addTranscript('Tú', transcript, messageType, itemId);
-      logEvent(`Tú: ${transcript.substring(0, 50)}${transcript.length > 50 ? '...' : ''}`);
+      // Removed logEvent for user messages - only show in transcript panel
     }
 
     // Agent transcript - fires when agent finishes speaking
@@ -520,7 +539,7 @@ async function connect() {
       console.log('[Frontend] Agent spoke:', text);
       if (text && text.trim()) {
         addTranscript('Eureka', text, 'voice');
-        logEvent(`Eureka: ${text.substring(0, 50)}${text.length > 50 ? '...' : ''}`);
+        // Removed logEvent for agent messages - only show in transcript panel
       } else {
         console.log('[Frontend] Agent response was empty, skipping');
       }
@@ -529,7 +548,7 @@ async function connect() {
     // Agent starts speaking
     session.on('agent_start', (agent, context) => {
       console.log('[Frontend] Agent started speaking');
-      logEvent('Agent is responding...');
+      // Removed logEvent - not needed in events panel
     });
 
     // Audio stopped
@@ -622,7 +641,10 @@ async function connect() {
       console.error('[Frontend] Session error:', error);
       updateStatus(`Error: ${error.message || JSON.stringify(error)}`, 'error');
       logEvent(`Error: ${error.message || JSON.stringify(error)}`);
+      connectBtn.classList.remove('connecting');
+      connectBtn.textContent = 'Conectar & Empezar a Charlar';
       connectBtn.disabled = false;
+      connectBtn.style.display = '';
     });
 
     // Connect with the ephemeral key and timeout detection
@@ -634,6 +656,9 @@ async function connect() {
       console.error('[Frontend] Connection timeout - no response after 15 seconds');
       logEvent('Timeout de conexión - revisa la consola para más detalles');
       updateStatus('Timeout de conexión - revisa la consola', 'error');
+      connectBtn.classList.remove('connecting');
+      connectBtn.textContent = 'Conectar & Empezar a Charlar';
+      connectBtn.disabled = false;
     }, 15000);
 
     try {
@@ -645,9 +670,11 @@ async function connect() {
 
       // Update UI immediately after successful connection
       isConnected = true;
+      connectBtn.classList.remove('connecting');
+      connectBtn.textContent = 'Conectar & Empezar a Charlar';
+      connectBtn.style.display = 'none'; // Hide connect button when connected
       updateStatus('¡Conectada - Empieza a hablar o escribir!', 'success');
       disconnectBtn.disabled = false;
-      connectBtn.disabled = true;
       messageInput.disabled = false;
       sendBtn.disabled = false;
       logEvent('¡Conexión establecida - Ya puedes hablar o escribir!');
@@ -663,6 +690,8 @@ async function connect() {
   } catch (error) {
     console.error('Connection error:', error);
     updateStatus(`Error de conexión: ${error.message}`, 'error');
+    connectBtn.classList.remove('connecting');
+    connectBtn.textContent = 'Conectar & Empezar a Charlar';
     connectBtn.disabled = false;
     logEvent(`Error de conexión: ${error.message}`);
   }
@@ -698,6 +727,7 @@ async function disconnect() {
 
     // Reset UI
     updateStatus('Desconectada', 'info');
+    connectBtn.style.display = ''; // Show connect button again
     connectBtn.disabled = false;
     disconnectBtn.disabled = true;
     messageInput.disabled = true;
@@ -724,7 +754,7 @@ async function sendTextMessage() {
 
     // Add user message to transcript immediately (deduplication will prevent duplicates)
     addTranscript('Tú', message, 'text');
-    // Note: logEvent will be triggered by history_added listener to avoid duplicates
+    // Note: Not logging to events panel - only show in transcript
 
     // Send message through Realtime API
     await session.sendMessage(message);
