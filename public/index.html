@@ -56,7 +56,6 @@
             background: var(--color-bg-card);
             border-radius: 16px;
             box-shadow: 0 4px 20px rgba(17, 37, 168, 0.08);
-            overflow: hidden;
         }
 
         .header {
@@ -69,6 +68,11 @@
             justify-content: center;
             gap: 30px;
             flex-wrap: wrap;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 8px rgba(17, 37, 168, 0.15);
+            border-radius: 16px 16px 0 0;
         }
 
         .header-content {
@@ -96,6 +100,20 @@
             font-size: 2em;
             margin: 0;
             font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .eureka-logo {
+            height: 90px;
+            width: auto;
+            border-radius: 50%;
+            background: white;
+            padding: 8px 15px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
 
         @media (max-width: 768px) {
@@ -112,6 +130,15 @@
             .header h1 {
                 font-size: 1.5em;
             }
+
+            .eureka-logo {
+                height: 70px;
+                padding: 6px 12px;
+            }
+
+            .controls {
+                top: 130px;
+            }
         }
 
         .controls {
@@ -123,6 +150,10 @@
             justify-content: center;
             align-items: center;
             flex-wrap: wrap;
+            position: sticky;
+            top: 160px;
+            z-index: 99;
+            box-shadow: 0 2px 8px rgba(17, 37, 168, 0.1);
         }
 
         button {
@@ -623,7 +654,7 @@
         <div class="header">
             <img src="eureka-avatar.png" alt="Eureka Avatar" class="eureka-avatar">
             <div class="header-content">
-                <h1>¡Hola! soy Eureka, tu asistente inteligente</h1>
+                <h1>¡Hola! soy <img src="eureka_logo.png" alt="Eureka" class="eureka-logo">, tu asistente inteligente</h1>
             </div>
         </div>
 
