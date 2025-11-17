@@ -107,13 +107,20 @@
             justify-content: center;
         }
 
-        .eureka-logo {
-            height: 90px;
-            width: auto;
-            border-radius: 50%;
-            background: white;
-            padding: 8px 15px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        .eureka-text {
+            position: relative;
+            display: inline-block;
+        }
+
+        .eureka-underline {
+            position: absolute;
+            bottom: -18px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 140%;
+            height: auto;
+            max-height: 50px;
+            pointer-events: none;
         }
 
         @media (max-width: 768px) {
@@ -131,9 +138,9 @@
                 font-size: 1.5em;
             }
 
-            .eureka-logo {
-                height: 70px;
-                padding: 6px 12px;
+            .eureka-underline {
+                bottom: -12px;
+                max-height: 35px;
             }
 
             .controls {
@@ -654,7 +661,14 @@
         <div class="header">
             <img src="eureka-avatar.png" alt="Eureka Avatar" class="eureka-avatar">
             <div class="header-content">
-                <h1>¡Hola! soy <img src="eureka_logo.png" alt="Eureka" class="eureka-logo">, tu asistente inteligente</h1>
+                <h1>
+                    ¡Hola! soy
+                    <span class="eureka-text">
+                        Eureka
+                        <img src="lengua_naranja.png" alt="" class="eureka-underline">
+                    </span>,
+                    tu asistente inteligente
+                </h1>
             </div>
         </div>
 
