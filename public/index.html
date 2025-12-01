@@ -123,6 +123,14 @@
             pointer-events: none;
         }
 
+        .subtitle {
+            font-size: 1.3em;
+            font-weight: 400;
+            color: var(--color-text-on-dark);
+            margin-top: 5px;
+            opacity: 0.9;
+        }
+
         @media (max-width: 768px) {
             .header {
                 padding: 20px;
@@ -267,7 +275,7 @@
 
         .content {
             display: grid;
-            grid-template-columns: 65% 35%;
+            grid-template-columns: 1fr;
             gap: 0;
             min-height: 400px;
         }
@@ -290,16 +298,6 @@
             gap: 4px;
         }
 
-        .panel:first-child {
-            border-right: 2px solid var(--color-border-soft);
-        }
-
-        @media (max-width: 768px) {
-            .panel:first-child {
-                border-right: none;
-                border-bottom: 2px solid var(--color-border-soft);
-            }
-        }
 
         .panel h2 {
             font-size: 1.25em;
@@ -319,25 +317,6 @@
             border-radius: 2px;
         }
 
-        .panel:last-child {
-            background: #F9FAFB;
-            padding: 20px;
-        }
-
-        .panel:last-child h2 {
-            color: var(--color-text-main);
-            font-size: 1em;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            font-weight: 600;
-            margin-bottom: 16px;
-        }
-
-        .panel:last-child h2::before {
-            background: var(--color-brand-blue-light);
-            width: 3px;
-            height: 16px;
-        }
 
         .message {
             margin-bottom: 16px;
@@ -434,45 +413,6 @@
             word-wrap: break-word;
         }
 
-        #events {
-            background: #FFFFFF;
-            border: 1px solid var(--color-border-soft);
-            border-radius: 6px;
-            padding: 8px;
-            font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', 'Consolas', monospace;
-            max-height: 400px;
-            overflow-y: auto;
-        }
-
-        .event {
-            padding: 5px 8px;
-            margin-bottom: 0;
-            background: transparent;
-            border-bottom: 1px solid #F0F1F4;
-            font-size: 0.75em;
-            color: var(--color-text-muted);
-            font-family: inherit;
-            line-height: 1.5;
-            display: flex;
-            align-items: flex-start;
-            gap: 8px;
-        }
-
-        .event:last-child {
-            border-bottom: none;
-        }
-
-        .event:nth-child(even) {
-            background: #FAFBFC;
-        }
-
-        .event::before {
-            content: '›';
-            color: var(--color-brand-blue-light);
-            flex-shrink: 0;
-            font-size: 1em;
-            font-weight: bold;
-        }
 
         .empty-state {
             text-align: center;
@@ -604,6 +544,49 @@
             font-weight: 600;
         }
 
+        #muteBtn {
+            padding: 14px 20px;
+            font-size: 0.95em;
+            background: var(--color-success);
+            color: var(--color-text-on-dark);
+            flex-shrink: 0;
+            align-self: flex-end;
+            border-radius: 12px;
+            min-width: 130px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+        }
+
+        #muteBtn:hover:not(:disabled) {
+            background: #009966;
+            transform: translateY(-1px);
+        }
+
+        #muteBtn:disabled {
+            background: var(--color-border-strong);
+            color: var(--color-text-muted);
+        }
+
+        #muteBtn.muted {
+            background: var(--color-error);
+        }
+
+        #muteBtn.muted:hover:not(:disabled) {
+            background: #b91c1c;
+        }
+
+        #muteIcon {
+            font-size: 1.1em;
+            line-height: 1;
+        }
+
+        #muteText {
+            font-weight: 600;
+        }
+
         #sendBtn {
             padding: 14px 28px;
             font-size: 0.95em;
@@ -622,6 +605,18 @@
         #sendBtn:disabled {
             background: var(--color-border-strong);
             color: var(--color-text-muted);
+        }
+
+        #sendBtn.agent-speaking {
+            background: var(--color-warning);
+            cursor: not-allowed;
+            opacity: 0.8;
+        }
+
+        #sendBtn.agent-speaking:hover {
+            background: var(--color-warning);
+            transform: none;
+            box-shadow: 0 2px 8px rgba(245, 158, 11, 0.12);
         }
 
         .message-type-label {
@@ -643,11 +638,23 @@
             .input-container {
                 flex-direction: column;
                 align-items: stretch;
+                gap: 8px;
+            }
+
+            #muteBtn {
+                width: 100%;
+                align-self: stretch;
+                order: 2;
             }
 
             #sendBtn {
                 width: 100%;
                 align-self: stretch;
+                order: 3;
+            }
+
+            .input-wrapper {
+                order: 1;
             }
 
             #messageInput {
@@ -665,10 +672,10 @@
                     ¡Hola! soy
                     <span class="eureka-text">
                         Eureka
-                        <img src="lengua_naranja.png" alt="" class="eureka-underline">
                     </span>,
                     tu asistente inteligente
                 </h1>
+                <div class="subtitle">and also in English</div>
             </div>
         </div>
 
@@ -686,11 +693,6 @@
                         Empieza a hablar o escribir para ver la conversación aquí...
                     </div>
                 </div>
-            </div>
-
-            <div class="panel">
-                <h2>Registro de Eventos</h2>
-                <div id="events"></div>
             </div>
         </div>
 
@@ -711,6 +713,15 @@
                         <span id="charCount">0</span> / 1000
                     </div>
                 </div>
+                <button id="muteBtn" disabled>
+                    <span id="muteIcon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
+                            <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
+                        </svg>
+                    </span>
+                    <span id="muteText">Mutear Micrófono</span>
+                </button>
                 <button id="sendBtn" disabled>Enviar</button>
             </div>
         </div>
