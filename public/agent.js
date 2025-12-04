@@ -561,7 +561,7 @@ EVITA:
 // UI elements
 let session = null;
 let isConnected = false;
-let isMuted = false;
+let isMuted = true; // Start muted by default for noisy environments
 let isAgentSpeaking = false;
 
 const connectBtn = document.getElementById('connectBtn');
@@ -735,42 +735,37 @@ function updateInputState() {
 
 // Toggle microphone mute/unmute
 async function toggleMute() {
-  if (!isConnected || !session) {
-    console.log('[Frontend] Cannot toggle mute: not connected');
-    return;
-  }
-
   try {
-    // Read current muted state BEFORE changing
-    const currentMutedState = session.muted;
-    console.log(`[Frontend] Current muted state: ${currentMutedState}`);
-
-    // Calculate new state (toggle)
-    const newMutedState = !currentMutedState;
-
-    // Call session.mute() with the new state as parameter
-    session.mute(newMutedState);
+    // Calculate new state (toggle current local state)
+    const newMutedState = !isMuted;
 
     // Update local state
     isMuted = newMutedState;
 
-    console.log(`[Frontend] New muted state: ${newMutedState}`);
+    console.log(`[Frontend] Toggling mute to: ${newMutedState}`);
+
+    // If connected, apply to session immediately
+    if (isConnected && session) {
+      console.log(`[Frontend] Session is connected, applying mute state to session`);
+      session.mute(newMutedState);
+      console.log(`[Frontend] ✅ Microphone ${isMuted ? 'MUTED' : 'UNMUTED'} (applied to session)`);
+    } else {
+      console.log(`[Frontend] ✅ Microphone ${isMuted ? 'MUTED' : 'UNMUTED'} (will apply on connect)`);
+    }
 
     // Update UI using helper function
     updateMuteButtonUI();
 
-    // Log the action
-    if (isMuted) {
-      console.log('[Frontend] ✅ Microphone MUTED');
-    } else {
-      console.log('[Frontend] ✅ Microphone UNMUTED');
-    }
-
   } catch (error) {
     console.error('[Frontend] Error toggling mute:', error);
 
-    // Revert local state to session state in case of error
-    isMuted = session.muted ?? isMuted;
+    // Revert local state in case of error
+    if (isConnected && session) {
+      isMuted = session.muted ?? isMuted;
+    } else {
+      // If not connected, just revert the toggle
+      isMuted = !isMuted;
+    }
     updateMuteButtonUI();
   }
 }
@@ -991,10 +986,10 @@ async function connect() {
       messageInput.disabled = false;
       sendBtn.disabled = false;
 
-      // Enable mute button - session has built-in mute() method
-      muteBtn.disabled = false;
-      console.log('[Frontend] Mute control enabled - using session.mute() method');
-      logEvent('Control de micrófono habilitado');
+      // Apply mute state that was set before connecting
+      console.log(`[Frontend] Applying pre-configured mute state: ${isMuted}`);
+      session.mute(isMuted);
+      console.log(`[Frontend] ✅ Microphone ${isMuted ? 'MUTED' : 'UNMUTED'} on connection`);
 
       logEvent('¡Conexión establecida - Ya puedes hablar o escribir!');
 
@@ -1041,10 +1036,9 @@ async function disconnect() {
     session = null;
     isConnected = false;
 
-    // Reset mute state
-    isMuted = false;
-    updateMuteButtonUI();
-    muteBtn.disabled = true;
+    // Keep mute state - user preference is preserved
+    // Mute button remains enabled for next connection
+    console.log(`[Frontend] Mute state preserved: ${isMuted}`);
 
     // Reset agent speaking state
     isAgentSpeaking = false;
