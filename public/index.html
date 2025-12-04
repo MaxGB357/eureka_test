@@ -98,9 +98,10 @@
 
         .innovacion-logo {
             position: absolute;
-            top: 65px;
-            right: 5px;
-            height: 80px;
+            top: 50%;
+            left: 20px;
+            transform: translateY(-50%);
+            height: 72px;
             width: auto;
             opacity: 0.95;
             transition: opacity 0.3s ease;
@@ -509,7 +510,7 @@
         .input-container {
             display: flex;
             gap: 12px;
-            align-items: flex-end;
+            align-items: flex-start;
             max-width: 100%;
         }
 
@@ -570,7 +571,7 @@
             background: var(--color-success);
             color: var(--color-text-on-dark);
             flex-shrink: 0;
-            align-self: flex-end;
+            align-self: flex-start;
             border-radius: 12px;
             min-width: 130px;
             display: flex;
@@ -613,7 +614,7 @@
             background: var(--color-brand-blue);
             color: var(--color-text-on-dark);
             flex-shrink: 0;
-            align-self: flex-end;
+            align-self: flex-start;
             border-radius: 12px;
             min-width: 100px;
         }
@@ -714,9 +715,6 @@
         </div>
 
         <div class="chat-input-section">
-            <div class="helper-text">
-                Asegúrate de tener el micrófono habilitado. Puedes hablar o escribir para interactuar con la asistente.
-            </div>
             <div class="input-container">
                 <div class="input-wrapper">
                     <textarea
